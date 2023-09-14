@@ -1,0 +1,49 @@
+
+# Enhancing the Contrast
+
+import cv2
+
+# Load the video
+input_video_path = 'input_video.mp4'
+output_video_path = '/output_video_CLAHE.mp4'
+cap = cv2.VideoCapture(input_video_path)
+
+# Get video properties
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+fps = int(cap.get(5))
+num_frames = int(cap.get(7))
+
+# Define codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
+# Create CLAHE object
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
+    # Convert frame to grayscale
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    # Apply CLAHE to the grayscale frame
+    equalized_frame = clahe.apply(gray_frame)
+    
+    # Convert the equalized frame back to BGR
+    equalized_frame_bgr = cv2.cvtColor(equalized_frame, cv2.COLOR_GRAY2BGR)
+    
+    # Write the processed frame to the output video
+    out.write(equalized_frame_bgr)
+    
+    cv2.imshow('Original Video', frame)
+    cv2.imshow('Equalized Video', equalized_frame_bgr)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
