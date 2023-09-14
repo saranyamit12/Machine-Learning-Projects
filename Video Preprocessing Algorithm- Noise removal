@@ -10,7 +10,7 @@ def remove_salt_and_pepper_noise(frame, kernel_size=3):
     return cv2.medianBlur(frame, kernel_size)
 
 # Load the video
-input_video_path = 'E:/2023/shrusty/depth_video.mp4'
+input_video_path = 'input_video.mp4'
 output_video_path = 'output_video.mp4'
 cap = cv2.VideoCapture(input_video_path)
 
