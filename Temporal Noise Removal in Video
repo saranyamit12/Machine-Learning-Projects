@@ -1,0 +1,57 @@
+
+# Temoral Noise Removal
+
+
+import cv2
+
+# Load the video
+input_video_path = 'input_video.mp4'
+output_video_path = 'output_video.mp4'
+cap = cv2.VideoCapture(input_video_path)
+
+# Get video properties
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+fps = int(cap.get(5))
+num_frames = int(cap.get(7))
+
+# Define codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
+# Initialize variables for temporal filtering
+prev_frame = None
+filtered_frame = None
+alpha = 0.9  # Smoothing factor
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
+    # Convert the frame to grayscale for noise reduction
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    # Apply temporal filtering
+    if prev_frame is None:
+        filtered_frame = gray_frame
+    else:
+        filtered_frame = cv2.addWeighted(filtered_frame, alpha, gray_frame, 1 - alpha, 0)
+    
+    prev_frame = gray_frame
+    
+    # Convert the filtered frame back to BGR
+    filtered_frame_bgr = cv2.cvtColor(filtered_frame, cv2.COLOR_GRAY2BGR)
+    
+    # Write the processed frame to the output video
+    out.write(filtered_frame_bgr)
+    
+    cv2.imshow('Original Video', frame)
+    cv2.imshow('Filtered Video', filtered_frame_bgr)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
