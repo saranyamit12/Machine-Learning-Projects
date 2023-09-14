@@ -1,0 +1,46 @@
+####### Video Noise Removal Algorithm ########
+
+
+
+
+
+import cv2
+
+def remove_salt_and_pepper_noise(frame, kernel_size=3):
+    return cv2.medianBlur(frame, kernel_size)
+
+# Load the video
+input_video_path = 'E:/2023/shrusty/depth_video.mp4'
+output_video_path = 'output_video.mp4'
+cap = cv2.VideoCapture(input_video_path)
+
+# Get video properties
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+fps = int(cap.get(5))
+num_frames = int(cap.get(7))
+
+# Define codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
+    # Apply salt and pepper noise removal
+    filtered_frame = remove_salt_and_pepper_noise(frame)
+    
+    # Write the processed frame to the output video
+    out.write(filtered_frame)
+    
+    cv2.imshow('Original Video', frame)
+    cv2.imshow('Filtered Video', filtered_frame)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
