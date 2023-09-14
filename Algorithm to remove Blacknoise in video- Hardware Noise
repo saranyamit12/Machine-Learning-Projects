@@ -1,0 +1,47 @@
+#Some video files contains black pixel noises, in the particular regions, which affects the important details in the frames.
+# removing black noises in the video
+import cv2
+import numpy as np
+
+def remove_black_noise(frame, threshold_value=30):
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _, thresholded = cv2.threshold(gray_frame, threshold_value, 255, cv2.THRESH_BINARY)
+    inverted_thresholded = cv2.bitwise_not(thresholded)
+    cleaned_frame = cv2.inpaint(frame, inverted_thresholded, inpaintRadius=3, flags=cv2.INPAINT_TELEA)
+    return cleaned_frame
+
+# Load the video
+input_video_path = 'input_video.mp4'
+output_video_path = 'output_video.mp4'
+cap = cv2.VideoCapture(input_video_path)
+
+# Get video properties
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+fps = int(cap.get(5))
+num_frames = int(cap.get(7))
+
+# Define codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
+    # Apply black noise removal
+    cleaned_frame = remove_black_noise(frame)
+    
+    # Write the processed frame to the output video
+    out.write(cleaned_frame)
+    
+    cv2.imshow('Original Video', frame)
+    cv2.imshow('Cleaned Video', cleaned_frame)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
